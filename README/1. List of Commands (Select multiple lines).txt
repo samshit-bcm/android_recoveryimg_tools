@@ -1,0 +1,13 @@
+./split_bootimg.pl recovery.img
+mkdir ramdisk
+cd ramdisk
+gzip -dc ../recovery.img-ramdisk.gz | cpio -i
+cd ..
+
+-------------------------
+
+./mkbootfs ./ramdisk | gzip > ramdisk-new.gz
+./mkbootimg --kernel recovery.img-kernel --ramdisk ramdisk-new.gz --board GT-S5660 --pagesize 4096 --base 0x13600000 -o recovery-new.img
+
+phiexz's recovery might have been compressed. So you have might have to replace the gzip commmand to:
+xz -dc ../recovery.img-ramdisk.gz | cpio -i

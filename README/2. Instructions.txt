@@ -1,0 +1,35 @@
+-----------Step 1--------------------------
+Extract recovery's ramdisk
+./split_bootimg.pl recovery.img 
+
+~~~ALTERNATE~~~ Please use the method above but if you cannot use the one below
+First, Extract the contents of the ramdisk with:
+./unpack-bootimg.pl recovery.img
+----------Step 2---------------------------
+Edit the Ramdisk:
+cd ramdisk
+gzip -dc ../recovery.img-ramdisk.gz | cpio -i
+cd ..
+
+phiexz's recovery might have been compressed. So you have might have to replace the gzip commmand to:
+xz -dc ../recovery.img-ramdisk.gz | cpio -i
+----------Step 3---------------------------
+lift the security default.prop
+
+Original source code
+ro.secure=1
+ro.allow.mock.location=0
+ro.debuggable=0
+persist.service.adb.enable=0
+
+Changed source code 
+ro.secure=0
+ro.allow.mock.location=1
+ro.debuggable=1
+persist.service.adb.enable=1
+------------Step 4-------------------------
+Pack-up Ramdisk
+./mkbootfs ./ramdisk | gzip > ramdisk-new.gz
+--------------Step 5--------------------------------------------------------------------
+Repack to IMG
+./mkbootimg --kernel recovery.img-kernel --ramdisk ramdisk-new.gz --board GT-S5660 --pagesize 4096 --base 0x13600000 -o recovery-new.img
